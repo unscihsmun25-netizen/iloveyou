@@ -79,18 +79,26 @@ function createFloatingHeart() {
 }
 
 button.addEventListener("click", () => {
-  if (button.textContent === "Click Me! ❤") {
-    button.textContent = "I love you Azza! 💗";
+  if (button.textContent === "yes (i love you azza)") {
+    button.style.display = "none";
     
-    // Create waves of hearts
-    for (let wave = 0; wave < 20; wave++) {
+    // Show the couple photo
+    const photo = document.getElementById('couplePhoto');
+    photo.style.display = "block";
+    setTimeout(() => {
+        photo.style.opacity = "1";
+        photo.style.transform = "translate(-50%, -50%) scale(1)";
+    }, 10);
+    
+    // Create waves of hearts - reduced from 1000 to 300 for better performance
+    for (let wave = 0; wave < 15; wave++) {
         setTimeout(() => {
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 20; i++) {
                 setTimeout(() => {
                     createFloatingHeart();
-                }, i * 10);
+                }, i * 15);
             }
-        }, wave * 200);
+        }, wave * 150);
     }
   }
 });
@@ -237,7 +245,7 @@ function drawText() {
 
     if(frameNumber >= 3000 && frameNumber < 99999){
         context.fillStyle = `rgba(237, 240, 218, ${thirdOpacity})`;
-        context.fillText("Happy Valentine's Day <3", canvas.width/2, (canvas.height/2 + 120));
+        context.fillText("will you be my valentine? <3", canvas.width/2, (canvas.height/2 + 120));
         thirdOpacity = thirdOpacity + 0.01;
 
         button.style.display = "block";
