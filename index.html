@@ -120,10 +120,27 @@
                 font-size: 20px;
             }
         }
+
+        #dimOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            z-index: 9999;
+            pointer-events: none;
+            transition: background 2s ease;
+        }
+
+        #dimOverlay.active {
+            background: rgba(0, 0, 0, 0.7);
+        }
     </style>
 </head>
 <body>
     <canvas id="starfield"></canvas>
+    <div id="dimOverlay"></div>
     <img id="couplePhoto" src="photo.jpg" alt="Us">
     <div id="poemCredits">
         i don't want to love you,<br><br>
@@ -140,6 +157,7 @@
         and love them.
     </div>
     <button id="valentinesButton">yes (i love you azza)</button>
+    <audio id="loveSong" src="https://cdn.jsdelivr.net/gh/unscihsmun25-netizen/az@main/i-love-you-so.mp3"></audio>
     <script src="script.js"></script>
 </body>
 </html>
