@@ -73,11 +73,72 @@
             transform: translate(-50%, -50%) scale(1.05);
             box-shadow: 0 25px 80px rgba(255, 182, 193, 0.8);
         }
+
+        #poemCredits {
+            position: fixed;
+            bottom: -100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 30px;
+            color: rgba(237, 240, 218, 1);
+            text-shadow: 
+                0 0 10px rgba(237, 240, 218, 0.6),
+                0 0 20px rgba(237, 240, 218, 0.4);
+            line-height: 1.8;
+            z-index: 10001;
+            display: none;
+            pointer-events: none;
+        }
+
+        #poemCredits.scrolling {
+            display: block;
+            animation: scrollUp 45s linear forwards;
+        }
+
+        @keyframes scrollUp {
+            0% {
+                bottom: -100%;
+            }
+            100% {
+                bottom: 120%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #poemCredits {
+                font-size: 24px;
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #poemCredits {
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
 <body>
     <canvas id="starfield"></canvas>
-    <img id="couplePhoto" src="couple-photo.jpg" alt="Us">
+    <img id="couplePhoto" src="photo.jpg" alt="Us">
+    <div id="poemCredits">
+        i don't want to love you,<br><br>
+        i want to learn you,<br><br>
+        i want to know if you like your tea sweet or regular,<br><br>
+        i want to know what your favorite flower is,<br><br>
+        i want to know why you cried when you were 8 years old,<br><br>
+        i want to know why you hate your home,<br><br>
+        i want to reach the deep end of your heart,<br><br>
+        i want to see all your sides,<br><br>
+        the pretty and the dark,<br><br>
+        and love them.<br><br>
+        I want to see all your previous versions,<br><br>
+        and love them.
+    </div>
     <button id="valentinesButton">yes (i love you azza)</button>
     <script src="script.js"></script>
 </body>
