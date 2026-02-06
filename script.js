@@ -29,14 +29,55 @@ var thirdOpacity = 0;
 
 var baseFrame = context.getImageData(0, 0, window.innerWidth, window.innerHeight);
 
-function drawStars() {
-    for (var i = 0; i < stars; i++) {
-        var star = starArray[i];
+// Poem animation state
+var poemStarted = false;
+var poemEnded = false;
+var poemHearts = [];
+var starExplosionStartTime = null;
+var starExplosionDuration = 2000; // 2 seconds for explosion
+var typewriterStartTime = null;
+var typewriterText = "i love you so much.";
+var typewriterIndex = 0;
+var typewriterSpeed = 150; // milliseconds per character
 
-        context.beginPath();
-        context.arc(star.x, star.y, star.radius, 0, 360);
-        context.fillStyle = "hsla(" + star.hue + ", " + star.sat + "%, 88%, " + star.opacity + ")";
-        context.fill();
+// Pulsating heart class
+class PulsatingHeart {
+    constructor() {
+        this.x = Math.random() * window.innerWidth;
+        this.y = Math.random() * window.innerHeight;
+        this.size = Math.random() * 15 + 10;
+        this.pulse = Math.random() * Math.PI * 2;
+        this.pulseSpeed = Math.random() * 0.05 + 0.02;
+    }
+    
+    update() {
+        this.pulse += this.pulseSpeed;
+    }
+    
+    draw(ctx) {
+        const scale = 0.8 + Math.sin(this.pulse) * 0.2;
+        const alpha = 0.3 + Math.sin(this.pulse) * 0.2;
+        
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.scale(scale, scale);
+        ctx.globalAlpha = alpha;
+        
+        ctx.font = this.size + 'px Arial';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🤍', 0, 0);
+        
+        ctx.restore();
+    }
+}
+
+// Initialize pulsating hearts
+function initPoemHearts() {
+    poemHearts = [];
+    for (let i = 0; i < 8; i++) {
+        poemHearts.push(new PulsatingHeart());
     }
 }
 
@@ -121,10 +162,27 @@ button.addEventListener("click", () => {
         const dimOverlay = document.getElementById('dimOverlay');
         dimOverlay.classList.add('active');
         
+        // Dim the photo along with background
+        photo.style.filter = 'brightness(0.4)';
+        
         // Start poem credits scrolling after dimming
         setTimeout(() => {
             const poem = document.getElementById('poemCredits');
             poem.classList.add('scrolling');
+            poemStarted = true;
+            initPoemHearts();
+            
+            // Poem ends after 45 seconds (matching the animation duration)
+            setTimeout(() => {
+                poemEnded = true;
+                starExplosionStartTime = Date.now();
+                
+                // Start typewriter after explosion finishes
+                setTimeout(() => {
+                    typewriterStartTime = Date.now();
+                }, starExplosionDuration);
+                
+            }, 45000);
         }, 500);
         
         // Fade out music after 35 seconds (before poem ends)
@@ -310,12 +368,81 @@ function drawText() {
      context.shadowOffsetY = 0;
 }
 
+function drawPoemHearts() {
+    if (poemStarted && !poemEnded) {
+        poemHearts.forEach(heart => {
+            heart.update();
+            heart.draw(context);
+        });
+    }
+}
+
+function drawStarExplosion() {
+    if (!starExplosionStartTime) return;
+    
+    const elapsed = Date.now() - starExplosionStartTime;
+    const progress = Math.min(elapsed / starExplosionDuration, 1);
+    
+    // Pick a star to expand (use the first one)
+    const expandingStar = starArray[0];
+    
+    // Exponential growth
+    const maxRadius = Math.max(canvas.width, canvas.height) * 1.5;
+    const currentRadius = progress * maxRadius;
+    
+    // White color with increasing opacity
+    const whiteOpacity = progress;
+    
+    context.save();
+    context.globalAlpha = whiteOpacity;
+    context.fillStyle = 'white';
+    context.beginPath();
+    context.arc(expandingStar.x, expandingStar.y, currentRadius, 0, Math.PI * 2);
+    context.fill();
+    context.restore();
+}
+
+function drawTypewriter() {
+    if (!typewriterStartTime) return;
+    
+    const elapsed = Date.now() - typewriterStartTime;
+    const currentIndex = Math.floor(elapsed / typewriterSpeed);
+    
+    if (currentIndex <= typewriterText.length) {
+        const displayText = typewriterText.substring(0, currentIndex);
+        
+        context.save();
+        context.font = Math.min(30, window.innerWidth / 24) + "px Quicksand";
+        context.fillStyle = '#36454F'; // Charcoal color
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText(displayText, canvas.width / 2, canvas.height / 2);
+        context.restore();
+    }
+}
+
 function draw() {
     context.putImageData(baseFrame, 0, 0);
 
-    drawStars();
-    updateStars();
-    drawText();
+    // Only draw stars if explosion hasn't started
+    if (!starExplosionStartTime) {
+        drawStars();
+        updateStars();
+        drawText();
+        drawPoemHearts();
+    } else {
+        // During and after explosion
+        drawStarExplosion();
+        
+        // After explosion is complete, show typewriter on white background
+        const elapsed = starExplosionStartTime ? Date.now() - starExplosionStartTime : 0;
+        if (elapsed >= starExplosionDuration) {
+            // Fill with white
+            context.fillStyle = 'white';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            drawTypewriter();
+        }
+    }
 
     if (frameNumber < 99999) {
         frameNumber++;
